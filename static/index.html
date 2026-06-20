@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Campaign Copilot</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <div class="mesh-bg"></div>
+    <div class="mesh-blob blob-1"></div>
+    <div class="mesh-blob blob-2"></div>
+    <div class="mesh-blob blob-3"></div>
+
+    <div class="dashboard">
+        <header class="header glass-panel">
+            <h1>AI Campaign Copilot</h1>
+            <p>AI-Powered Strategic Planning Assistant</p>
+        </header>
+
+        <div class="layout">
+            <aside class="sidebar glass-panel">
+                <h2>Campaign Details</h2>
+                <form id="campaign-form">
+                    <div class="input-group">
+                        <label>Campaign Title</label>
+                        <input type="text" id="name" placeholder="Village Digital Literacy Drive 2026" required>
+                    </div>
+                    <div class="input-group">
+                        <label>Focus / Topic</label>
+                        <textarea id="topic" rows="3" placeholder="Mobile banking safety..." required></textarea>
+                    </div>
+                    <div class="input-group">
+                        <label>Target Audience</label>
+                        <input type="text" id="audience" placeholder="Women, senior citizens..." required>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="input-group">
+                            <label>Expected Reach</label>
+                            <input type="number" id="reach" value="250" min="10" required>
+                        </div>
+                        <div class="input-group">
+                            <label>Budget (INR)</label>
+                            <input type="number" id="budget" value="5000" min="0" required>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="input-group">
+                            <label>Duration</label>
+                            <input type="number" id="duration" value="2" min="1" required>
+                        </div>
+                        <div class="input-group">
+                            <label>Unit</label>
+                            <select id="duration_unit">
+                                <option value="Days">Days</option>
+                                <option value="Weeks" selected>Weeks</option>
+                                <option value="Months">Months</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <button type="submit" id="generate-btn" class="btn-glow">
+                        Generate Campaign Plan
+                    </button>
+                </form>
+
+                <div class="chat-section">
+                    <div class="chat-header">Refine with AI Copilot</div>
+                    <div class="chat-box" id="chat-box">
+                        <div class="chat-message system">Generate a plan first to unlock the AI refinement assistant.</div>
+                    </div>
+                    <form id="chat-form" class="chat-input-area">
+                        <input type="text" id="chat-input" placeholder="Ask to refine the plan..." required disabled>
+                        <button type="submit" id="chat-send-btn" disabled>
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <line x1="22" y1="2" x2="11" y2="13"></line>
+                                <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                            </svg>
+                        </button>
+                    </form>
+                </div>
+            </aside>
+
+            <main class="content-area">
+                <div class="status-tracker glass-panel" id="status-tracker">
+                    <div class="pulse-ring hidden" id="loading-ring"></div>
+                    <span id="status-text">Ready. Fill in your campaign details and click Generate.</span>
+                    <div id="download-group" class="dropdown hidden">
+                        <button type="button" class="dropdown-trigger">
+                            <span>Download Plan</span>
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="chevron-icon">
+                                <polyline points="6 9 12 15 18 9"></polyline>
+                            </svg>
+                        </button>
+                        <div class="dropdown-menu glass-panel">
+                            <a id="download-md" href="javascript:void(0)">📝 Markdown (.md)</a>
+                            <a id="download-pdf" href="javascript:void(0)">📄 PDF (.pdf)</a>
+                            <a id="download-docx" href="javascript:void(0)">💾 Word (.docx)</a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="report-container glass-panel">
+                    <div id="report-content">
+                        <div class="empty-state">
+                            Your professional campaign plan will appear here after generation.
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <button id="info-btn" class="floating-btn">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"></circle>
+            <line x1="12" y1="16" x2="12" y2="12"></line>
+            <line x1="12" y1="8" x2="12.01" y2="8"></line>
+        </svg>
+        User Guide
+    </button>
+
+    <div id="guide-modal" class="modal hidden">
+        <div class="modal-content glass-panel animate-zoom">
+            <div class="modal-header">
+                <h2>Campaign Planning Guide</h2>
+                <button id="close-modal" class="close-btn">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p class="guide-intro">This guide helps you understand each field so the AI planner can generate the most effective campaign strategy. <strong>Click any example value to copy it.</strong></p>
+                
+                <div class="guide-item">
+                    <h3>📝 Campaign Title</h3>
+                    <p>A short, memorable title of what you are planning.</p>
+                    <code class="copyable" data-copy="Village Digital Literacy Drive 2026">Village Digital Literacy Drive 2026 <span class="copy-icon">📋</span></code>
+                </div>
+                
+                <div class="guide-item">
+                    <h3>🎯 Focus / Topic</h3>
+                    <p>Specify the core message, skills, or action you want to teach or coordinate.</p>
+                    <code class="copyable" data-copy="Teaching secure mobile banking, avoiding OTP scams, and setting strong passwords">Teaching secure mobile banking, avoiding OTP scams, and setting strong passwords <span class="copy-icon">📋</span></code>
+                </div>
+                
+                <div class="guide-item">
+                    <h3>👥 Target Audience</h3>
+                    <p>Identify who needs this campaign. This guides the tone, messaging platforms, and volunteer role structure.</p>
+                    <code class="copyable" data-copy="Elderly citizens, housewives, and local shopkeepers">Elderly citizens, housewives, and local shopkeepers <span class="copy-icon">📋</span></code>
+                </div>
+                
+                <div class="guide-item">
+                    <h3>📈 Expected Reach</h3>
+                    <p>The estimated number of community members to impact. This programmatically scales the volunteer count requirements (e.g. 5, 10, or 20+ volunteers) and physical flyer quantity.</p>
+                    <code class="copyable" data-copy="500">500 <span class="copy-icon">📋</span></code>
+                </div>
+                
+                <div class="guide-item">
+                    <h3>💰 Budget (INR)</h3>
+                    <p>Estimated local currency budget. The AI distributes this budget into percentage slices for print materials, logistics, refreshments, and contingencies.</p>
+                    <code class="copyable" data-copy="15000">15,000 <span class="copy-icon">📋</span></code>
+                </div>
+                
+                <div class="guide-item">
+                    <h3>⏱️ Duration & Unit</h3>
+                    <p>The operational lifespan of your campaign (Days, Weeks, or Months). The AI generates a customized timeline mapping out preparatory steps, core execution, and feedback collection.</p>
+                    <code class="copyable" data-copy="3">3 Weeks <span class="copy-icon">📋</span></code>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/static/script.js"></script>
+</body>
+</html>
