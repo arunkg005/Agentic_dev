@@ -11,6 +11,10 @@ pinned: false
 
 An AI-powered strategic planning assistant designed for coordinators. It transforms campaign ideas into structured, professional, and downloadable execution plans—complete with SMART objectives, action timelines, budget/resource allocation, volunteer roles, risk mitigation, and key success metrics.
 
+## 🌟 Project Vision & Motivation
+
+NGO coordinators and field volunteers often spend countless hours drafting operational plans, estimating logistics, and structuring basic budgets before they can even begin their actual groundwork. This project was built to solve that exact bottleneck. The goal is to provide an accessible "copilot" that instantly generates a structured, professional baseline plan from a few simple inputs—freeing up coordinators to focus on what matters most: community engagement, execution, and impact.
+
 ![Python](https://img.shields.io/badge/Python-3.11+-3776AB?logo=python&logoColor=white)
 ![FastAPI](https://img.shields.io/badge/FastAPI-0.111+-009688?logo=fastapi&logoColor=white)
 ![Google Gemini](https://img.shields.io/badge/Gemini-2.0_Flash-4285F4?logo=google&logoColor=white)
@@ -26,6 +30,23 @@ An AI-powered strategic planning assistant designed for coordinators. It transfo
 * **Multi-Format Export:** Instant downloads as Markdown (`.md`), Word Document (`.docx`), or PDF (`.pdf`).
 * **Dual LLM Failover:** Routes primary requests to Google Gemini with automatic, seamless fallback to Groq (Llama 3.3).
 * **Modern Premium UI:** Charcoal-and-emerald dark mode with responsive glassmorphism and subtle micro-animations.
+
+---
+
+## 🎯 Current State & Scope (MVP Review)
+
+This project is currently a **highly polished Minimum Viable Product (MVP)** and proof-of-concept. It demonstrates complex AI orchestration, modular Python architecture, and dynamic UI streaming.
+
+### ✅ What it does exceptionally well (The Prototype Strengths):
+* **Fault-Tolerant Generation:** Uses a highly decoupled architecture with strict, deterministic fallback functions. If the LLM hallucinates or the API fails, the pipeline gracefully catches the error and generates a structurally sound baseline plan anyway.
+* **Security & Safety First:** Actively scans for prompt injections and utilizes token-bucket rate-limiting to prevent quota abuse and Denial of Wallet (DoW) attacks.
+* **UX / Streaming:** The real-time Server-Sent Events (SSE) and interactive chatbot refinement create a seamless, production-grade user experience.
+
+### 🚧 Limitations (Why it isn't ready for unsupervised "Ground Work"):
+While structurally sound, this prototype requires a few key architectural upgrades before an NGO could run their entire operation exclusively through it:
+1. **Basic Heuristics:** The resource and budget estimations are currently based on basic rule-of-thumb math (e.g., `<200 reach = 5 volunteers`). Real-world logistics require complex geographic variables and live local pricing, which the LLM cannot currently fetch.
+2. **Statelessness:** There is no persistent database (like PostgreSQL or Firebase). Once a plan is generated and the browser is closed, the session is gone. A production version would require user authentication and saved project states.
+3. **API Throughput Limits:** The current deployment relies on free-tier LLM API keys. In a high-traffic production environment, this would quickly hit rate limits (429 Quota Exceeded). A paid-tier API with token pooling would be necessary for concurrent, large-scale NGO usage.
 
 ---
 
