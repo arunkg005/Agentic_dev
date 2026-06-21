@@ -33,20 +33,16 @@ NGO coordinators and field volunteers often spend countless hours drafting opera
 
 ---
 
-## 🎯 Current State & Scope (MVP Review)
+## 🎯 Current State & Scope
 
-This project is currently a **highly polished Minimum Viable Product (MVP)** and proof-of-concept. It demonstrates complex AI orchestration, modular Python architecture, and dynamic UI streaming.
+This project is currently a **highly polished Minimum Viable Product (MVP)** and proof-of-concept. It successfully demonstrates complex AI orchestration, modular architecture, and dynamic UI streaming, providing a strong baseline for automated campaign planning.
 
-### ✅ What it does exceptionally well (The Prototype Strengths):
-* **Fault-Tolerant Generation:** Uses a highly decoupled architecture with strict, deterministic fallback functions. If the LLM hallucinates or the API fails, the pipeline gracefully catches the error and generates a structurally sound baseline plan anyway.
-* **Security & Safety First:** Actively scans for prompt injections and utilizes token-bucket rate-limiting to prevent quota abuse and Denial of Wallet (DoW) attacks.
-* **UX / Streaming:** The real-time Server-Sent Events (SSE) and interactive chatbot refinement create a seamless, production-grade user experience.
+### 🚀 Future Enhancements (Scope for Production)
+While structurally sound and fully functional as a prototype, the following architectural upgrades would elevate this tool to a production-ready application for unsupervised, large-scale NGO deployment:
 
-### 🚧 Limitations (Why it isn't ready for unsupervised "Ground Work"):
-While structurally sound, this prototype requires a few key architectural upgrades before an NGO could run their entire operation exclusively through it:
-1. **Basic Heuristics:** The resource and budget estimations are currently based on basic rule-of-thumb math (e.g., `<200 reach = 5 volunteers`). Real-world logistics require complex geographic variables and live local pricing, which the LLM cannot currently fetch.
-2. **Statelessness:** There is no persistent database (like PostgreSQL or Firebase). Once a plan is generated and the browser is closed, the session is gone. A production version would require user authentication and saved project states.
-3. **API Throughput Limits:** The current deployment relies on free-tier LLM API keys. In a high-traffic production environment, this would quickly hit rate limits (429 Quota Exceeded). A paid-tier API with token pooling would be necessary for concurrent, large-scale NGO usage.
+* **Persistent Database Integration:** Transitioning from a stateless architecture to a persistent database (e.g., PostgreSQL, Firebase) to enable user authentication, project saving, and collaborative editing.
+* **Dynamic Data Integrations:** Upgrading the current heuristic-based budget and resource estimations to pull real-time external data (e.g., live local pricing, geographic logistics) for pinpoint accuracy.
+* **Enterprise API Scaling:** Migrating from free-tier LLM API keys to a high-capacity, paid-tier API with token pooling to support high-traffic, concurrent usage without hitting rate limits.
 
 ---
 
