@@ -29,7 +29,7 @@ def analyze_risks(
     )
 
     def run_fallback():
-        return [
+        return {"risks": [
             {
                 "risk": "Low Turnout / Participant Attendance",
                 "mitigation": "Promote across multiple channels (WhatsApp, flyers, posters) at least 5 days prior.",
@@ -42,7 +42,7 @@ def analyze_risks(
                 "risk": "Material Availability",
                 "mitigation": "Procure and verify all materials at least 2 days before execution.",
             },
-        ]
+        ]}
 
     result = safe_llm_execute(prompt, run_fallback, api_key=api_key, provider=provider, json_output=True)
 

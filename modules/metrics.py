@@ -28,7 +28,7 @@ def generate_metrics(
     )
 
     def run_fallback():
-        return [
+        return {"metrics": [
             {
                 "name": "Direct Reach (Participants)",
                 "target": f"Engage at least {int(reach * 0.8)} individuals directly.",
@@ -44,7 +44,7 @@ def generate_metrics(
                 "target": "Collect feedback from at least 30 participants.",
                 "method": "3-question WhatsApp or paper survey after events.",
             },
-        ]
+        ]}
 
     result = safe_llm_execute(prompt, run_fallback, api_key=api_key, provider=provider, json_output=True)
 

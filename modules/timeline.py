@@ -30,7 +30,7 @@ def generate_timeline(
     )
 
     def run_fallback():
-        return _build_fallback(duration, duration_unit)
+        return {"timeline": _build_fallback(duration, duration_unit)}
 
     result = safe_llm_execute(prompt, run_fallback, api_key=api_key, provider=provider, json_output=True)
 
