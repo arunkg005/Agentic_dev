@@ -1,0 +1,24 @@
+# Ignore local virtual environments
+.venv/
+venv/
+env/
+
+# Ignore Python cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Ignore local output files
+output/
+
+# Ignore environment variables (these should be set in the HF Dashboard)
+.env
+
+# Ignore git metadata
+.git/
+.gitignore
+
+# Ignore IDE configs
+.vscode/
+.idea/
