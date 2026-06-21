@@ -1,3 +1,12 @@
+---
+title: NGO Campaign Copilot
+emoji: 🚀
+colorFrom: green
+colorTo: blue
+sdk: docker
+pinned: false
+---
+
 # AI Campaign Copilot 🚀
 
 An AI-powered strategic planning assistant designed for coordinators. It transforms campaign ideas into structured, professional, and downloadable execution plans—complete with SMART objectives, action timelines, budget/resource allocation, volunteer roles, risk mitigation, and key success metrics.
