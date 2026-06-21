@@ -19,7 +19,11 @@ def safe_llm_execute(
     try:
         raw = call_llm(prompt, api_key=api_key, json_output=json_output, provider=provider)
         if json_output:
-            return json.loads(raw)
+            parsed = json.loads(raw)
+            if not isinstance(parsed, dict):
+                logger.error("LLM returned non-dict JSON structure. Triggering fallback.")
+                return fallback_fn()
+            return parsed
         return raw
     except Exception as e:
         err_str = str(e)
