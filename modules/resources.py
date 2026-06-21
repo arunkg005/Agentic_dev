@@ -1,6 +1,6 @@
 import json
 import logging
-from config import call_llm
+from utils import safe_llm_execute
 
 logger = logging.getLogger("NGO-Campaign-Copilot.Resources")
 
@@ -57,35 +57,32 @@ def estimate_resources(
         '"operational_notes": "..."}}'
     )
 
-    try:
-        raw = call_llm(prompt, api_key=api_key, json_output=True, provider=provider)
-        result = json.loads(raw)
-
-        # Defensive defaults for every expected key
-        result.setdefault("physical_materials", [])
-        result.setdefault("digital_resources", [])
-        result.setdefault("budget_allocation", [])
-        result.setdefault("operational_notes", "")
-
-        # Validate nested structures
-        for item in result["physical_materials"]:
-            item.setdefault("item", "Unknown Item")
-            item.setdefault("purpose", "")
-            item.setdefault("suggested_quantity", "N/A")
-        for item in result["digital_resources"]:
-            item.setdefault("item", "Unknown Tool")
-            item.setdefault("purpose", "")
-        for item in result["budget_allocation"]:
-            item.setdefault("category", "Uncategorized")
-            item.setdefault("percentage", 0)
-            item.setdefault("amount_inr", 0)
-
-        result["calculated_volunteers"] = vol_count
-        return result
-
-    except Exception as e:
-        logger.error("Error estimating resources: %s", e)
+    def run_fallback():
         return _build_fallback(vol_count, flyers, budget)
+
+    result = safe_llm_execute(prompt, run_fallback, api_key=api_key, provider=provider, json_output=True)
+
+    # Defensive defaults for every expected key
+    result.setdefault("physical_materials", [])
+    result.setdefault("digital_resources", [])
+    result.setdefault("budget_allocation", [])
+    result.setdefault("operational_notes", "")
+
+    # Validate nested structures
+    for item in result["physical_materials"]:
+        item.setdefault("item", "Unknown Item")
+        item.setdefault("purpose", "")
+        item.setdefault("suggested_quantity", "N/A")
+    for item in result["digital_resources"]:
+        item.setdefault("item", "Unknown Tool")
+        item.setdefault("purpose", "")
+    for item in result["budget_allocation"]:
+        item.setdefault("category", "Uncategorized")
+        item.setdefault("percentage", 0)
+        item.setdefault("amount_inr", 0)
+
+    result["calculated_volunteers"] = vol_count
+    return result
 
 
 def _build_fallback(vol_count: int, flyers: int, budget: float) -> dict:

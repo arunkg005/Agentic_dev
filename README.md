@@ -1,51 +1,44 @@
 # AI Campaign Copilot 🚀
 
-An AI-powered strategic planning assistant that helps NGO coordinators transform campaign ideas into professional, downloadable execution plans — complete with objectives, timelines, budgets, volunteer roles, risk assessments, and success metrics.
+An AI-powered strategic planning assistant designed for coordinators. It transforms campaign ideas into structured, professional, and downloadable execution plans—complete with SMART objectives, action timelines, budget/resource allocation, volunteer roles, risk mitigation, and key success metrics.
 
 ![Python](https://img.shields.io/badge/Python-3.11+-3776AB?logo=python&logoColor=white)
 ![FastAPI](https://img.shields.io/badge/FastAPI-0.111+-009688?logo=fastapi&logoColor=white)
-![Gemini](https://img.shields.io/badge/Google_Gemini-2.0_Flash-4285F4?logo=google&logoColor=white)
+![Google Gemini](https://img.shields.io/badge/Gemini-2.0_Flash-4285F4?logo=google&logoColor=white)
 ![Groq](https://img.shields.io/badge/Groq-Llama_3.3-FF6600?logo=meta&logoColor=white)
 
 ---
 
-## ✨ Features
+## ⚡ Key Features
 
-| Feature | Description |
-|---|---|
-| **Multi-Module AI Pipeline** | 6 specialized AI modules (Objectives → Timeline → Resources → Volunteers → Risks → Metrics) orchestrated by a central agent |
-| **Real-Time Streaming** | NDJSON-streamed progress updates during plan generation |
-| **AI Refinement Chat** | Built-in chat interface to iteratively refine the generated plan with natural language prompts |
-| **Multi-Format Export** | Download plans as Markdown (.md), PDF (.pdf), or Word (.docx) |
-| **Dual LLM Provider** | Supports Google Gemini and Groq (Llama 3.3) with automatic failover |
-| **Security First** | Prompt injection detection, input sanitization, rate limiting, and system-level safety filters |
-| **Premium Dark UI** | Glassmorphic charcoal + emerald design with micro-animations |
+* **Multi-Stage Orchestration:** Runs a 6-module AI pipeline sequentially to cover all aspects of campaign planning (Objectives → Timeline → Resources → Volunteers → Risks → Metrics).
+* **Real-Time Streaming:** Streams plan-generation progress updates to the frontend via NDJSON.
+* **Interactive AI Chat:** Allows real-time refinement of the generated plan using natural language (e.g., "increase the budget", "add a risk for bad weather").
+* **Multi-Format Export:** Instant downloads as Markdown (`.md`), Word Document (`.docx`), or PDF (`.pdf`).
+* **Dual LLM Failover:** Routes primary requests to Google Gemini with automatic, seamless fallback to Groq (Llama 3.3).
+* **Modern Premium UI:** Charcoal-and-emerald dark mode with responsive glassmorphism and subtle micro-animations.
 
 ---
 
-## 🖥️ Screenshots
+## 🔒 Security & Safety Features
 
-> Generate a campaign plan, refine it with AI chat, and download in your preferred format.
+This project implements rigorous security and safety boundaries to ensure responsible AI usage and API protection:
+
+* **Prompt Injection Defenses:** Deep regex heuristic checks actively scan user inputs for malicious commands designed to override system instructions, extract sensitive keys, force roleplay bypasses, or leak internal prompts. Any suspicious input immediately aborts the pipeline.
+* **Input Sanitization:** All user-provided fields undergo rigorous HTML tag stripping to neutralize Cross-Site Scripting (XSS) vectors and prevent downstream document corruption during Word/PDF compilation.
+* **Global Rate Limiting:** A robust token-bucket rate limiter restricts the frequency of requests (e.g., 5 requests per 60 seconds) to prevent Denial of Wallet (DoW) attacks and protect backend API quotas.
+* **Granular Error Handling:** Rate limits from upstream LLM providers (e.g., HTTP 429 errors) are safely caught and presented to the user as clean, generic fallback messages rather than raw API traces, preventing internal endpoint or SDK information leakage.
+* **Provider-Level Safety Enforcements:** Hardcoded system prompts restrict the LLM solely to campaign planning topics. Provider safety filters are fully enabled to reject sexually explicit, dangerous, or harassing content generations.
 
 ---
 
 ## 🏗️ Architecture
 
 ```
-┌──────────────────────────────────────────────────────┐
+┌───────────────────────────────────────────────────────┐
 │                   Frontend (Vanilla JS)               │
-│  ┌─────────┐  ┌──────────┐  ┌──────────────────────┐ │
-│  │Campaign │  │AI Refine │  │  Report Preview +     │ │
-│  │  Form   │  │ Chatbar  │  │  Download Dropdown    │ │
-│  └────┬────┘  └────┬─────┘  └──────────────────────┘ │
-│       │             │                                  │
-├───────┼─────────────┼──────────────────────────────────┤
-│       ▼             ▼         FastAPI Backend          │
-│  /api/generate  /api/refine                            │
-│       │             │                                  │
-│       ▼             ▼                                  │
 │  ┌─────────────────────────────────────────────────┐  │
-│  │           Campaign Agent (Orchestrator)          │  │
+│  │           Campaign Agent (Orchestrator)         │  │
 │  │  ┌──────────┐ ┌──────────┐ ┌──────────────────┐ │  │
 │  │  │Objectives│ │ Timeline │ │    Resources     │ │  │
 │  │  └──────────┘ └──────────┘ └──────────────────┘ │  │
@@ -53,45 +46,30 @@ An AI-powered strategic planning assistant that helps NGO coordinators transform
 │  │  │Volunteers│ │  Risks   │ │     Metrics      │ │  │
 │  │  └──────────┘ └──────────┘ └──────────────────┘ │  │
 │  └─────────────────────────────────────────────────┘  │
-│       │                                                │
-│       ▼                                                │
+│       │                                               │
+│       ▼                                               │
 │  ┌─────────────────────────────────────────────────┐  │
 │  │       Compiler (MD → PDF / DOCX / HTML)         │  │
 │  └─────────────────────────────────────────────────┘  │
-│       │                                                │
-│       ▼                                                │
+│       │                                               │
+│       ▼                                               │
 │  ┌──────────────┐                                     │
-│  │  LLM Router  │ Gemini (primary) ↔ Groq (fallback) │
+│  │  LLM Router  │ Gemini (primary) ↔ Groq (fallback)  │
 │  └──────────────┘                                     │
-└──────────────────────────────────────────────────────┘
+└───────────────────────────────────────────────────────┘
 ```
 
 ---
 
-## 🛠️ Tech Stack
+## 🛠️ Quick Start
 
-| Layer | Technology |
-|---|---|
-| **Frontend** | HTML5, Vanilla CSS (Glassmorphism), JavaScript |
-| **Backend** | FastAPI, Uvicorn |
-| **AI Models** | Google Gemini 2.0 Flash, Groq Llama 3.3 70B |
-| **Export** | `markdown`, `xhtml2pdf` (PDF), `python-docx` (DOCX) |
-| **Security** | Custom prompt injection filter, HTML sanitization, rate limiter |
-| **Font** | [Outfit](https://fonts.google.com/specimen/Outfit) (Google Fonts) |
-
----
-
-## 🚀 Quick Start
-
-### 1. Clone the Repository
-
+### 1. Clone & Navigate
 ```bash
 git clone https://github.com/arunkg005/Agentic_dev.git
 cd Agentic_dev
 ```
 
-### 2. Create Virtual Environment
-
+### 2. Set Up Environment
 ```bash
 # Windows
 python -m venv .venv
@@ -103,109 +81,55 @@ source .venv/bin/activate
 ```
 
 ### 3. Install Dependencies
-
 ```bash
 pip install -r requirements.txt
 ```
 
 ### 4. Configure API Keys
-
-Copy the example env file and add your keys:
-
+Copy the example environment template:
 ```bash
 cp .env.example .env
 ```
-
-Edit `.env` with your API keys:
-
+Open `.env` and configure your API keys (at least one is required):
 ```env
-# Required — Get a free key from: https://aistudio.google.com/apikey
 GEMINI_API_KEY=your_gemini_api_key_here
-GEMINI_MODEL=gemini-2.0-flash
-
-# Optional (fallback) — Get a free key from: https://console.groq.com/keys
 GROQ_API_KEY=your_groq_api_key_here
-GROQ_MODEL=llama-3.3-70b-versatile
 ```
 
-> **Note:** You need at least one API key. Groq is optional and acts as an automatic fallback if Gemini fails.
-
-### 5. Run the Application
-
+### 5. Launch
 ```bash
 python main.py
 ```
-
-Open **http://127.0.0.1:8000** in your browser.
-
----
-
-## 📖 Usage Guide
-
-1. **Fill in Campaign Details** — Title, Focus/Topic, Target Audience, Reach, Budget, Duration
-2. **Click "Generate Campaign Plan"** — Watch the AI pipeline progress through 6 modules in real-time
-3. **Review the Report** — The generated plan appears in the main panel with formatted sections
-4. **Refine with AI Chat** — Use the chatbar to make changes (e.g., *"increase budget to 25,000"*, *"add a risk about weather"*)
-5. **Download** — Click the dropdown to export as Markdown, PDF, or Word document
-
----
-
-## 🛡️ Security
-
-| Layer | Protection |
-|---|---|
-| **Prompt Injection** | 20+ regex patterns detect instruction override, identity hijacking, and secret extraction attempts |
-| **Input Sanitization** | HTML escaping, control character removal, and field length limits |
-| **System Instruction** | Enforced on every LLM call — restricts AI to campaign planning topics only |
-| **Safety Filters** | Gemini safety settings block harassment, hate speech, explicit, and dangerous content |
-| **Rate Limiting** | Token-bucket limiter (5 requests / 60 seconds) protects shared API keys |
-| **No PII Collection** | No personal data (emails, phones, addresses) is collected or stored |
+Open **[http://127.0.0.1:8000](http://127.0.0.1:8000)** in your web browser.
 
 ---
 
 ## 📁 Project Structure
 
 ```
-.
-├── main.py              # FastAPI server + API endpoints
-├── agent.py             # Campaign orchestrator (pipeline coordinator)
-├── config.py            # LLM provider routing (Gemini / Groq)
-├── security.py          # Prompt injection, sanitization, rate limiting
-├── requirements.txt     # Python dependencies
-├── .env.example         # Environment variable template
-├── modules/
-│   ├── objectives.py    # SMART objectives generator
-│   ├── timeline.py      # Execution timeline planner
-│   ├── resources.py     # Resource & budget estimator
-│   ├── volunteers.py    # Volunteer role distributor
-│   ├── risks.py         # Risk assessment & mitigation
-│   ├── metrics.py       # Success KPI generator
-│   └── compiler.py      # Report compiler (MD → PDF / DOCX)
-├── static/
-│   ├── index.html       # Single-page app UI
-│   ├── style.css        # Glassmorphic dark theme
-│   └── script.js        # Frontend logic & chat handler
-└── output/              # Generated campaign plans (gitignored)
+├── main.py              # FastAPI server and main endpoints
+├── agent.py             # Orchestrates the 6-module generation pipeline
+├── config.py            # LLM API configuration & model routing
+├── security.py          # Input sanitization, prompt injection filter, rate limiting
+├── requirements.txt     # Python package requirements
+├── .env.example         # Template for environment variables
+├── modules/             # Pipeline components
+│   ├── objectives.py    # SMART Objectives generator
+│   ├── timeline.py      # Timeline & milestones generator
+│   ├── resources.py     # Budget & materials estimator
+│   ├── volunteers.py    # Staffing & roles planner
+│   ├── risks.py         # Risk identification & mitigation generator
+│   ├── metrics.py       # Metrics & success indicators planner
+│   └── compiler.py      # Combines modules, handles HTML/PDF/Word rendering & chat updates
+├── static/              # Frontend web assets
+│   ├── index.html       # Single-page interface
+│   ├── style.css        # Premium dark glassmorphic styling
+│   └── script.js        # Form validation, SSE streaming, and chat refinement logic
+└── output/              # Local storage directory for compiled reports (gitignored)
 ```
-
----
-
-## 🤝 Contributing
-
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
 
 ---
 
 ## 📄 License
 
-This project is open source and available under the [MIT License](LICENSE).
-
----
-
-<p align="center">
-  Built with ❤️ using AI-powered agentic workflows
-</p>
+This project is licensed under the [MIT License](LICENSE).

@@ -131,6 +131,15 @@ document.getElementById('campaign-form').addEventListener('submit', async (e) =>
                 }
             }
         }
+        
+        // If stream ended but we didn't finish successfully (btn is still disabled and no file download is shown)
+        if (btn.disabled) {
+            pulseRing.classList.add('hidden');
+            btn.disabled = false;
+            if (statusText.textContent.includes('Error') || statusText.textContent.includes('limit')) {
+                statusText.style.color = '#ef4444';
+            }
+        }
     } catch (error) {
         statusText.textContent = `Connection Error: ${error.message}`;
         statusText.style.color = '#ef4444';
@@ -191,26 +200,16 @@ window.addEventListener('click', (e) => {
     }
 });
 
-// Programmatic file download — fetches as blob and triggers a real save dialog
+// Programmatic file download — uses direct anchor link to preserve real filenames
 function triggerDownload(url) {
-    fetch(url)
-        .then(res => {
-            if (!res.ok) throw new Error('File not found');
-            return res.blob();
-        })
-        .then(blob => {
-            const filename = url.split('/').pop();
-            const a = document.createElement('a');
-            a.href = URL.createObjectURL(blob);
-            a.download = filename;
-            document.body.appendChild(a);
-            a.click();
-            setTimeout(() => {
-                URL.revokeObjectURL(a.href);
-                a.remove();
-            }, 100);
-        })
-        .catch(err => console.error('Download failed:', err));
+    const filename = url.split('/').pop() || 'campaign_plan';
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    a.style.display = 'none';
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(() => a.remove(), 200);
 }
 
 [downloadMd, downloadPdf, downloadDocx].forEach(link => {

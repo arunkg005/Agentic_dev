@@ -1,6 +1,6 @@
 import json
 import logging
-from config import call_llm
+from utils import safe_llm_execute
 
 logger = logging.getLogger("NGO-Campaign-Copilot.Risks")
 
@@ -28,19 +28,7 @@ def analyze_risks(
         '{{"risks": [{{"risk":"...","mitigation":"..."}}]}}'
     )
 
-    try:
-        raw = call_llm(prompt, api_key=api_key, json_output=True, provider=provider)
-        result = json.loads(raw)
-        risks = result.get("risks")
-        if not isinstance(risks, list) or len(risks) == 0:
-            raise ValueError("Empty or malformed risks list from LLM.")
-        # Defensive validation
-        for r in risks:
-            r.setdefault("risk", "Unknown Risk")
-            r.setdefault("mitigation", "No mitigation specified.")
-        return risks
-    except Exception as e:
-        logger.error("Error analyzing risks: %s", e)
+    def run_fallback():
         return [
             {
                 "risk": "Low Turnout / Participant Attendance",
@@ -55,3 +43,18 @@ def analyze_risks(
                 "mitigation": "Procure and verify all materials at least 2 days before execution.",
             },
         ]
+
+    result = safe_llm_execute(prompt, run_fallback, api_key=api_key, provider=provider, json_output=True)
+
+    risks = result.get("risks")
+    if not isinstance(risks, list) or len(risks) == 0:
+        logger.warning("Empty or malformed risks list from LLM; using fallback.")
+        return run_fallback()
+        
+    # Defensive validation
+    for r in risks:
+        if not isinstance(r, dict):
+            continue
+        r.setdefault("risk", "Unknown Risk")
+        r.setdefault("mitigation", "No mitigation specified.")
+    return [r for r in risks if isinstance(r, dict)]

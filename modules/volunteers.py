@@ -1,6 +1,6 @@
 import json
 import logging
-from config import call_llm
+from utils import safe_llm_execute
 
 logger = logging.getLogger("NGO-Campaign-Copilot.Volunteers")
 
@@ -31,38 +31,40 @@ def plan_volunteers(
         '"coordination_tips": "..."}}'
     )
 
-    try:
-        raw = call_llm(prompt, api_key=api_key, json_output=True, provider=provider)
-        result = json.loads(raw)
-
-        roles = result.get("roles")
-        if not isinstance(roles, list) or len(roles) == 0:
-            raise ValueError("Empty or malformed roles list from LLM.")
-
-        # Validate and coerce nested structure
-        for role in roles:
-            role.setdefault("role_name", "Unnamed Role")
-            role.setdefault("responsibilities", "")
-            try:
-                role["count"] = int(role.get("count", 1))
-            except (TypeError, ValueError):
-                role["count"] = 1
-
-        # Fix count mismatch
-        assigned = sum(r["count"] for r in roles)
-        if assigned != total_volunteers:
-            logger.warning(
-                "Volunteer count mismatch: expected %d, got %d. Correcting.",
-                total_volunteers, assigned,
-            )
-            _correct_volunteer_counts(roles, total_volunteers, assigned)
-
-        result.setdefault("coordination_tips", "")
-        return result
-
-    except Exception as e:
-        logger.error("Error planning volunteers: %s", e)
+    def run_fallback():
         return _build_fallback(total_volunteers)
+
+    result = safe_llm_execute(prompt, run_fallback, api_key=api_key, provider=provider, json_output=True)
+
+    roles = result.get("roles")
+    if not isinstance(roles, list) or len(roles) == 0:
+        logger.warning("Empty or malformed roles list from LLM; using fallback.")
+        return run_fallback()
+
+    # Validate and coerce nested structure
+    for role in roles:
+        if not isinstance(role, dict):
+            continue
+        role.setdefault("role_name", "Unnamed Role")
+        role.setdefault("responsibilities", "")
+        try:
+            role["count"] = int(role.get("count", 1))
+        except (TypeError, ValueError):
+            role["count"] = 1
+
+    # Fix count mismatch
+    roles_list = [r for r in roles if isinstance(r, dict)]
+    assigned = sum(r.get("count", 0) for r in roles_list)
+    if assigned != total_volunteers and roles_list:
+        logger.warning(
+            "Volunteer count mismatch: expected %d, got %d. Correcting.",
+            total_volunteers, assigned,
+        )
+        _correct_volunteer_counts(roles_list, total_volunteers, assigned)
+
+    result["roles"] = roles_list
+    result.setdefault("coordination_tips", "")
+    return result
 
 
 def _correct_volunteer_counts(

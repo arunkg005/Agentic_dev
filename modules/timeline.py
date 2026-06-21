@@ -1,6 +1,6 @@
 import json
 import logging
-from config import call_llm
+from utils import safe_llm_execute
 
 logger = logging.getLogger("NGO-Campaign-Copilot.Timeline")
 
@@ -29,22 +29,25 @@ def generate_timeline(
         '{{"timeline": [{{"phase": "...", "timeframe": "...", "activities": ["..."]}}]}}'
     )
 
-    try:
-        raw = call_llm(prompt, api_key=api_key, json_output=True, provider=provider)
-        result = json.loads(raw)
-        timeline = result.get("timeline")
-        if not isinstance(timeline, list) or len(timeline) == 0:
-            raise ValueError("Empty or malformed timeline list from LLM.")
-        # Validate structure of each phase
-        for phase in timeline:
-            phase.setdefault("phase", "Unnamed Phase")
-            phase.setdefault("timeframe", "")
-            if not isinstance(phase.get("activities"), list):
-                phase["activities"] = []
-        return timeline
-    except Exception as e:
-        logger.error("Error generating timeline: %s", e)
+    def run_fallback():
         return _build_fallback(duration, duration_unit)
+
+    result = safe_llm_execute(prompt, run_fallback, api_key=api_key, provider=provider, json_output=True)
+
+    timeline = result.get("timeline")
+    if not isinstance(timeline, list) or len(timeline) == 0:
+        logger.warning("Empty or malformed timeline list from LLM; using fallback.")
+        return run_fallback()
+        
+    # Validate structure of each phase
+    for phase in timeline:
+        if not isinstance(phase, dict):
+            continue
+        phase.setdefault("phase", "Unnamed Phase")
+        phase.setdefault("timeframe", "")
+        if not isinstance(phase.get("activities"), list):
+            phase["activities"] = []
+    return [p for p in timeline if isinstance(p, dict)]
 
 
 def _build_fallback(duration: int, duration_unit: str) -> list[dict]:

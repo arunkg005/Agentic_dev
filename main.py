@@ -39,17 +39,6 @@ async def generate(request: Request):
     
     async def ndjson_generator():
         try:
-            # We run the synchronous generator in a thread pool to avoid blocking the async event loop
-            def run_sync():
-                return list(run_campaign_planner(
-                    name=name,
-                    topic=topic,
-                    audience=audience,
-                    budget=budget,
-                    duration=duration,
-                    duration_unit=duration_unit,
-                    reach=reach
-                ))
             
             # For streaming properly, we iterate the generator directly.
             # Note: since the LLM calls are synchronous and block, we'd ideally use run_in_executor
@@ -99,6 +88,12 @@ async def refine(request: Request):
         current_markdown = data.get("markdown", "")
         prompt = data.get("prompt", "")
         
+        # Sanitize and validate prompt against prompt injection
+        from security import sanitize_input_text, check_prompt_injection
+        prompt = sanitize_input_text(prompt)
+        if check_prompt_injection(prompt):
+            return {"error": "Invalid request detected. Security filter triggered."}
+            
         refined_md, md_path, pdf_path, docx_path = refine_campaign_plan(
             current_markdown=current_markdown,
             prompt=prompt

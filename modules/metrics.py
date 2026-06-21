@@ -1,6 +1,6 @@
 import json
 import logging
-from config import call_llm
+from utils import safe_llm_execute
 
 logger = logging.getLogger("NGO-Campaign-Copilot.Metrics")
 
@@ -27,19 +27,7 @@ def generate_metrics(
         '{{"metrics": [{{"name":"...","target":"...","method":"..."}}]}}'
     )
 
-    try:
-        raw = call_llm(prompt, api_key=api_key, json_output=True, provider=provider)
-        result = json.loads(raw)
-        metrics = result.get("metrics")
-        if not isinstance(metrics, list) or len(metrics) == 0:
-            raise ValueError("Empty or malformed metrics list from LLM.")
-        for m in metrics:
-            m.setdefault("name", "Unnamed Metric")
-            m.setdefault("target", "N/A")
-            m.setdefault("method", "N/A")
-        return metrics
-    except Exception as e:
-        logger.error("Error generating metrics: %s", e)
+    def run_fallback():
         return [
             {
                 "name": "Direct Reach (Participants)",
@@ -57,3 +45,18 @@ def generate_metrics(
                 "method": "3-question WhatsApp or paper survey after events.",
             },
         ]
+
+    result = safe_llm_execute(prompt, run_fallback, api_key=api_key, provider=provider, json_output=True)
+
+    metrics = result.get("metrics")
+    if not isinstance(metrics, list) or len(metrics) == 0:
+        logger.warning("Empty or malformed metrics list from LLM; using fallback.")
+        return run_fallback()
+        
+    for m in metrics:
+        if not isinstance(m, dict):
+            continue
+        m.setdefault("name", "Unnamed Metric")
+        m.setdefault("target", "N/A")
+        m.setdefault("method", "N/A")
+    return [m for m in metrics if isinstance(m, dict)]

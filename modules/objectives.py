@@ -1,6 +1,6 @@
 import json
 import logging
-from config import call_llm
+from utils import safe_llm_execute
 
 logger = logging.getLogger("NGO-Campaign-Copilot.Objectives")
 
@@ -34,15 +34,14 @@ def generate_objectives(
         "Engage the target community to drive participation in campaign activities.",
     ]
 
-    try:
-        raw = call_llm(prompt, api_key=api_key, json_output=True, provider=provider)
-        result = json.loads(raw)
-        objectives = result.get("objectives")
-        if not isinstance(objectives, list) or len(objectives) == 0:
-            logger.warning("LLM returned empty or malformed objectives list; using fallback.")
-            return fallback
-        # Ensure every item is a string
-        return [str(o) for o in objectives]
-    except Exception as e:
-        logger.error("Error generating objectives: %s", e)
+    def run_fallback():
         return fallback
+
+    result = safe_llm_execute(prompt, run_fallback, api_key=api_key, provider=provider, json_output=True)
+    
+    objectives = result.get("objectives")
+    if not isinstance(objectives, list) or len(objectives) == 0:
+        logger.warning("LLM returned empty or malformed objectives list; using fallback.")
+        return fallback
+    # Ensure every item is a string
+    return [str(o) for o in objectives]

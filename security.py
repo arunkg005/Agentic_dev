@@ -65,7 +65,7 @@ def sanitize_input_text(text: str) -> str:
     Cleans user text:
       1. Strips leading/trailing whitespace.
       2. Removes ASCII and Latin-1 control characters.
-      3. Escapes HTML special characters to prevent XSS.
+      3. Strips HTML tags to prevent XSS while preserving quotes and ampersands.
     """
     if not text:
         return ""
@@ -74,8 +74,8 @@ def sanitize_input_text(text: str) -> str:
     cleaned = re.sub(r'[\x00-\x1F\x7F-\x9F]', '', cleaned)
     # Re-strip in case control-char removal exposed new edge whitespace
     cleaned = cleaned.strip()
-    # Escape HTML to neutralise <script>, <img onerror>, etc.
-    cleaned = html.escape(cleaned)
+    # Strip HTML tags to block script/style/markup injection
+    cleaned = re.sub(r'</?[a-zA-Z][^>]*>', '', cleaned)
     return cleaned
 
 
