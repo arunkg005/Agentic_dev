@@ -27,11 +27,11 @@ def generate_strategic_recommendations(
         "Write them as a simple markdown bullet list."
     )
     def run_fallback():
-        return (
-            "- **Focus on Local Engagement**: Build relationships with local schools or community centres early.\n"
-            "- **Optimise Communication**: Maintain a shared WhatsApp group for real-time volunteer coordination.\n"
-            "- **Document for Future**: Take photos/videos to demonstrate impact for future donor proposals."
-        )
+        return {"recommendations": [
+            "**Focus on Local Engagement**: Build relationships with local schools or community centres early.",
+            "**Optimise Communication**: Maintain a shared WhatsApp group for real-time volunteer coordination.",
+            "**Document for Future**: Take photos/videos to demonstrate impact for future donor proposals."
+        ]}
 
     # Note: we ask for JSON so we don't have to parse markdown heuristics
     prompt += "\nRespond ONLY with JSON: {\"recommendations\": [\"...\"]}"
