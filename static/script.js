@@ -250,9 +250,7 @@ if (chatForm) {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     markdown: currentMarkdown,
-                    prompt: userPrompt,
-                    provider: document.getElementById('provider').value,
-                    api_key: document.getElementById('api_key').value
+                    prompt: userPrompt
                 })
             });
             
