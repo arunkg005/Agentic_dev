@@ -85,6 +85,22 @@ input:focus, textarea:focus, select:focus {
     box-shadow: 0 0 0 2px var(--primary-glow);
 }
 
+/* Fix browser autofill breaking the dark theme */
+input:-webkit-autofill,
+input:-webkit-autofill:hover, 
+input:-webkit-autofill:focus, 
+input:-webkit-autofill:active,
+textarea:-webkit-autofill,
+textarea:-webkit-autofill:hover,
+textarea:-webkit-autofill:focus,
+select:-webkit-autofill,
+select:-webkit-autofill:hover,
+select:-webkit-autofill:focus {
+    -webkit-box-shadow: 0 0 0 30px #18181b inset !important;
+    -webkit-text-fill-color: white !important;
+    transition: background-color 5000s ease-in-out 0s;
+}
+
 /* Button */
 .btn-glow {
     position: relative; width: 100%; padding: 1rem;
