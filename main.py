@@ -87,6 +87,8 @@ async def refine(request: Request):
         data = await request.json()
         current_markdown = data.get("markdown", "")
         prompt = data.get("prompt", "")
+        api_key = data.get("api_key")
+        provider = data.get("provider", "Gemini (Google)")
         
         # Sanitize and validate prompt against prompt injection
         from security import sanitize_input_text, check_prompt_injection
@@ -96,7 +98,9 @@ async def refine(request: Request):
             
         refined_md, md_path, pdf_path, docx_path = refine_campaign_plan(
             current_markdown=current_markdown,
-            prompt=prompt
+            prompt=prompt,
+            api_key=api_key,
+            provider=provider
         )
         
         html_preview = markdown.markdown(refined_md, extensions=['tables'])
